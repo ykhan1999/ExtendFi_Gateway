@@ -62,7 +62,7 @@ while true; do
   if [ "$INTERNET" != "$prev_internet" ] || [ "$signalstatus" != "$prev_signal" ] || [ "$Peers" != "$prev_peers" ]; then
     oled +2 "${INTERNET}"
     oled +4 "SIGNAL: $signalstatus"
-    oled +3 "CLIENTS: ${Peers}"
+    oled +3 "EXTENDERS: ${Peers}"
     oled s
   fi
   #store new variables to check for change
