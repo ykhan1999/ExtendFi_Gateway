@@ -45,25 +45,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-#prompt user if no input to flags
-if [[ -z "$SSID" || -z "$PASSWORD" || -z "$HSSID" ]]; then
-    #prompt user
-    read -rp "Enter HaLow SSID: " SSID
-    read -rsp "Enter HaLow password: " PASSWORD
-    echo ""
-    read -rp "Enter 2.4GHz SSID: " HSSID
-    read -rsp "Enter 2.4GHz password: " HPASSWORD
-    read -rp "Enter optim (<speed|distance>): " OPTIM
-fi
-
 if [[ -z "$HPASSWORD" ]]; then
   HPASSWORD=""
 fi
 
-if [[ "$OPTIM" != "speed" && "$OPTIM" != "distance" ]]; then
-    #error out
-    echo "--optim can only be speed or distance"
-    exit 1
+if [[ -z "$PASSWORD" ]]; then
+  PASSWORD=""
 fi
 
 # Escape characters that might break sed
@@ -112,7 +99,23 @@ if [[ "$OPTIM" == "distance" ]]; then
     "$CONFIG_FILE"
 fi
 
-echo "Updated channel and bandwidth in $CONFIG_FILE"
+#supply halow_80211s.conf with new optimization settings
+CONFIG_FILE_OPEN=$SCRIPT_DIR/config/halow_80211s.conf.open
+if [[ "$OPTIM" == "speed" ]]; then
+  sed -i \
+    -e "s/^[[:space:]]*channel[[:space:]]*=.*/    channel=32/" \
+    -e "s/^[[:space:]]*op_class[[:space:]]*=.*/    op_class=70/" \
+    "$CONFIG_FILE_OPEN"
+fi
+if [[ "$OPTIM" == "distance" ]]; then
+  sed -i \
+    -e "s/^[[:space:]]*channel[[:space:]]*=.*/    channel=26/" \
+    -e "s/^[[:space:]]*op_class[[:space:]]*=.*/    op_class=69/" \
+    "$CONFIG_FILE_OPEN"
+fi
+
+
+echo "Updated channel and bandwidth in $CONFIG_FILE and $CONFIG_FILE_OPEN"
 
 # ----------- Install updated config -------------
 

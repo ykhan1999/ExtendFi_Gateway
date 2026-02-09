@@ -110,18 +110,30 @@ if [[ "$MODE" == "client" ]]; then
     autoconnect no \
     ssid "$ssid"
 
-  nmcli connection modify wifi-ap \
-    802-11-wireless.mode ap \
-    wifi-sec.key-mgmt wpa-psk \
-    wifi-sec.psk "$psk" \
-    ipv4.method auto \
-    ipv6.method disabled
+    if [ -n "$psk" ]; then
+    #add pw if provided and disable ipv6
+    nmcli connection modify wifi-ap \
+      802-11-wireless.mode ap \
+      wifi-sec.key-mgmt wpa-psk \
+      wifi-sec.psk "$psk" \
+      ipv4.method auto \
+      ipv6.method disabled
+    else
+    nmcli connection modify wifi-ap \
+      802-11-wireless.mode ap \
+      ipv4.method auto \
+      ipv6.method disabled
+    fi
 
   nmcli connection up wifi-ap
 fi
 
 #start wpa_supplicant
-wpa_supplicant_s1g -D nl80211 -i wlan1 -c /usr/local/etc/halow_80211s.conf -B
+if [ -n "$psk" ]; then
+  wpa_supplicant_s1g -D nl80211 -i wlan1 -c /usr/local/etc/halow_80211s.conf -B
+else
+  wpa_supplicant_s1g -D nl80211 -i wlan1 -c /usr/local/etc/halow_80211s.conf.open -B
+fi
 
 #wait for bringup
 while true; do
