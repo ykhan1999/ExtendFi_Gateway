@@ -87,25 +87,18 @@ export default function Review() {
               <label>Settings summary</label>
             </div>
 
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-              <Chip>Mode: {answers.mode}</Chip>
-              <Chip>Optim: {answers.optim}</Chip>
-              <Chip>WiFi SSID: {answers.regssid || "—"}</Chip>
-              <Chip>HaLow SSID: {answers.halowssid || "—"}</Chip>
-            </div>
-
             <div style={{ display: "grid", gap: 10 }}>
-              <PrettyRow label="Mode" value={answers.mode} />
-              <PrettyRow label="Optimization" value={answers.optim} />
-              <PrettyRow label="WiFi SSID" value={answers.regssid || "—"} />
-              <PrettyRow label="WiFi Password" value={answers.regpw ? "••••••••" : "—"} />
-              <PrettyRow label="HaLow SSID" value={answers.halowssid || "—"} />
-              <PrettyRow label="HaLow Password" value={answers.halowpw ? "••••••••" : "—"} />
+              <PrettyRow
+                label="Mode"
+                value={answers.mode === "client" ? "extender" : answers.mode}
+              />
+              <PrettyRow label="WiFi Name" value={answers.regssid || answers.halowssid || "—"} />
+              <PrettyRow label="Password" value={answers.regpw || answers.halowpw || "—"} />
             </div>
           </div>
 
           <div className="actions">
-            <button onClick={() => nav("/step/4")}>Back</button>
+            <button onClick={() => nav("/step/2")}>Back</button>
             <button className="primary" onClick={run} disabled={running}>
               {running ? "Applying..." : "Apply Settings"}
             </button>

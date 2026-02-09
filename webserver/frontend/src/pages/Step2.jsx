@@ -13,6 +13,14 @@ async function scanNetworks() {
   return data.networks; // [{ssid,bssid,frequency,signal,secure,flags}]
 }
 
+async function scanHalowNetworks() {
+  const res = await fetch(`${BACKEND_URL}/api/wifi/scanhalow`);
+  if (!res.ok) throw new Error("Scan failed");
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Scan failed");
+  return data.networks; // [{ssid,bssid,frequency,signal,secure,flags}]
+}
+
 function dbmToBars(dbm) {
   if (typeof dbm !== "number") return 0;
   if (dbm >= -50) return 4;
@@ -65,19 +73,6 @@ export default function Step2() {
     didAutoScan.current = true;
     handleScan();
   }, [mode]);
-
-  const canContinue = useMemo(() => {
-    const ssidOk = (answers.regssid || "").trim().length > 0;
-
-    if (mode === "gateway") {
-      // upstream WiFi password optional (open networks allowed)
-      return ssidOk;
-    }
-
-    // client mode: you're creating a hotspot -> require password
-    const pwOk = (answers.regpw || "").trim().length >= 8; // change >=1 if you want "non-empty"
-    return ssidOk && pwOk;
-  }, [answers.regssid, answers.regpw, mode]);
 
   async function handleScan() {
     setScanning(true);
@@ -153,7 +148,7 @@ export default function Step2() {
             </div>
           ) : (
             <div className="sub">
-              Client mode: Choose the SSID and password for the hotspot you want to create.
+              Extender mode: Choose the WiFi name and password that you used for your gateway.
             </div>
           )}
         </div>
@@ -245,7 +240,7 @@ export default function Step2() {
 
               <div className="field">
                 <div className="labelRow">
-                  <label>WiFi Name (SSID)</label>
+                  <label>WiFi Name</label>
                   <span className="hint">Required</span>
                 </div>
 
@@ -267,13 +262,13 @@ export default function Step2() {
               <div className="field">
                 <div className="labelRow">
                   <label>WiFi Password</label>
-                  <span className="hint">Optional</span>
+                  <span className="hint">(Optional)</span>
                 </div>
                 <input
                   type="password"
                   value={answers.regpw || ""}
                   onChange={(e) => setAnswers((a) => ({ ...a, regpw: e.target.value }))}
-                  placeholder="Enter WiFi password"
+                  placeholder="Your WiFi Password"
                 />
               </div>
             </>
@@ -283,26 +278,109 @@ export default function Step2() {
             <>
               <div className="field">
                 <div className="labelRow">
-                  <label>Hotspot Name (SSID)</label>
-                  <span className="hint">Required</span>
+                  <label>Available HaLow networks</label>
+                  <span className="hint">Pick one or add hidden</span>
                 </div>
-                <input
-                  value={answers.regssid || ""}
-                  onChange={(e) => setAnswers((a) => ({ ...a, regssid: e.target.value }))}
-                  placeholder="Choose a hotspot name"
-                />
+
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <button type="button" onClick={handleScan} disabled={scanning}>
+                    {scanning ? "Scanning…" : "Scan"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={toggleHidden}
+                    className={useHidden ? "primary" : ""}
+                    aria-pressed={useHidden}
+                  >
+                    {useHidden ? "Hidden network: ON" : "Add hidden network"}
+                  </button>
+
+                  {!useHidden && networks.length > 0 && !listOpen && (
+                    <button type="button" onClick={() => setListOpen(true)}>
+                      Change network
+                    </button>
+                  )}
+
+                  {!useHidden && networks.length > 0 && listOpen && (
+                    <button type="button" onClick={() => setListOpen(false)}>
+                      Hide list
+                    </button>
+                  )}
+                </div>
+
+                {scanError && (
+                  <div style={{ marginTop: 8 }} className="error">
+                    {scanError}
+                  </div>
+                )}
+
+                {!useHidden && listOpen && networks.length > 0 && (
+                  <div className="list" style={{ marginTop: 12 }}>
+                    {networks.map((n) => {
+                      const selected = (answers.halowssid || "") === n.ssid;
+                      return (
+                        <button
+                          key={n.ssid}
+                          type="button"
+                          className={`listItem ${selected ? "selected" : ""}`}
+                          onClick={() => chooseNetwork(n.ssid)}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                            <span>{n.ssid}</span>
+                            <span className="hint" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span>{n.secure ? "Secured" : "Open"}</span>
+                              <SignalBars dbm={n.signal} />
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {!useHidden && networks.length === 0 && (
+                  <div style={{ marginTop: 10 }} className="hint">
+                    Tap <b>Scan</b> to find nearby HaLow networks.
+                  </div>
+                )}
+
+                {!useHidden && networks.length > 0 && !listOpen && (
+                  <div style={{ marginTop: 10 }} className="hint">
+                    Selected: <b>{answers.halowssid || "—"}</b> (tap <b>Change network</b> to pick another)
+                  </div>
+                )}
               </div>
 
               <div className="field">
                 <div className="labelRow">
-                  <label>Hotspot Password</label>
+                  <label>WiFi Name</label>
                   <span className="hint">Required</span>
+                </div>
+
+                {useHidden ? (
+                  <input
+                    autoComplete="username"
+                    value={answers.halowssid || ""}
+                    onChange={(e) => setAnswers((a) => ({ ...a, halowssid: e.target.value }))}
+                    placeholder="Enter hidden HaLow SSID"
+                  />
+                ) : (
+                  <input value={answers.halowssid || ""} readOnly placeholder="Select a network above" />
+                )}
+              </div>
+
+              <div className="field">
+                <div className="labelRow">
+                  <label>HaLow Password</label>
+                  <span className="hint">Optional</span>
                 </div>
                 <input
                   type="password"
-                  value={answers.regpw || ""}
-                  onChange={(e) => setAnswers((a) => ({ ...a, regpw: e.target.value }))}
-                  placeholder="Choose a password"
+                  autoComplete="current-password"
+                  value={answers.halowpw || ""}
+                  onChange={(e) => setAnswers((a) => ({ ...a, halowpw: e.target.value }))}
+                  placeholder="Your WiFi Password"
                 />
               </div>
             </>
@@ -310,7 +388,7 @@ export default function Step2() {
 
           <div className="actions">
             <button onClick={() => nav("/step/1")}>Back</button>
-            <button className="primary" disabled={!canContinue} onClick={() => nav("/step/3")}>
+            <button className="primary" onClick={() => nav("/review")}>
               Next
             </button>
           </div>

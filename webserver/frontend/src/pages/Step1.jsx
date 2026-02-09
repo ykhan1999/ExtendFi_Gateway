@@ -23,7 +23,7 @@ export default function Step1() {
         <div>
           <h2>Choose mode</h2>
           <div className="sub">
-            Please select whether to set up as a gateway (connects to your wifi) or a client (creates a hotspot)
+            Please select whether to set up as a gateway (connects to your wifi) or an Extender (creates the extended hotspot)
           </div>
         </div>
         <div className="badge">Step 1</div>
@@ -37,16 +37,16 @@ export default function Step1() {
               <span className="hint">
                 {" "}
                 <br />
-                In gateway mode, your device will use the signal from your WiFi router to extend your network. <br />
-                In client mode, your device will receive the extended signal and set up a hotspot for you to use.
+                In Gateway mode, your device will use the signal from your WiFi router to extend your network. <br />
+                In Extender mode, your device will receive the extended signal and set up a hotspot for you to use.
               </span>
             </div>
             <select
               value={answers.mode ?? "gateway"}
               onChange={(e) => setAnswers((a) => ({ ...a, mode: e.target.value }))}
             >
-              <option value="gateway">gateway</option>
-              <option value="client">client</option>
+              <option value="gateway">Gateway</option>
+              <option value="client">Extender</option>
             </select>
           </div>
 

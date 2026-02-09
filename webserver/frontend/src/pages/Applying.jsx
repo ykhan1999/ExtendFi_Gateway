@@ -1,43 +1,28 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useWizard } from "../wizard/WizardContext.jsx";
 
 export default function Applying() {
   const nav = useNavigate();
+  const { answers } = useWizard();
+
+  const mode = answers?.mode; // or whatever key you store it under
 
   return (
     <div className="card">
       <div className="cardHeader">
         <div>
           <h2>Settings sent to device!</h2>
-          <div className="sub">
-            Your settings have been sent to the device — please check your device's screen for the current status.
-          </div>
-        </div>
-        <div className="badge">Status</div>
-      </div>
-
-      <div className="cardBody">
-        <div className="grid">
-          <div
-            style={{
-              padding: 14,
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.12)",
-              background: "rgba(0,0,0,0.22)",
-              color: "rgba(255,255,255,0.78)",
-              lineHeight: 1.5,
-              fontSize: 13,
-            }}
-          >
-            Note - it may take up to 2 minutes for the process to complete.
-          </div>
-
-          <div className="actions">
-            <button onClick={() => nav("/step/1")}>Start Over</button>
-            <button className="primary" onClick={() => nav("/review")}>
-              Review my settings
-            </button>
-          </div>
+          {mode === "gateway" ? (
+            <div className="sub">
+              You may now close this tab and set up your Extender device.
+            </div>
+          ) : (
+            <div className="sub">
+              You may now close this tab and connect your device to the extended
+              network <strong>"{answers?.halowssid || "—"}_EXT"</strong>.
+            </div>
+          )}
         </div>
       </div>
     </div>
