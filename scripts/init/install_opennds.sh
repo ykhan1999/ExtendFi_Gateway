@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-sudo apt install -y libmicrohttpd
+sudo apt install -y libmicrohttpd-dev
 git clone https://github.com/ykhan1999/openNDS-ExtendFi
 cd openNDS-ExtendFi
 make
