@@ -67,7 +67,6 @@ export default function Step2() {
 
 
   useEffect(() => {
-    if (mode !== "gateway") return;
     if (didAutoScan.current) return;
 
     didAutoScan.current = true;
@@ -77,7 +76,8 @@ export default function Step2() {
   async function handleScan() {
     setScanning(true);
     setScanError("");
-    try {
+    if (mode == "gateway") {
+      try {
       const result = await scanNetworks();
 
       const cleaned = (result || [])
@@ -117,10 +117,58 @@ export default function Step2() {
 
       setNetworks(deduped);
       setListOpen(true); // ✅ expand list after scan
-    } catch (e) {
-      setScanError(e?.message || "Unable to scan for networks.");
-    } finally {
+      } catch (e) {
+        setScanError(e?.message || "Unable to scan for networks.");
+      } finally {
       setScanning(false);
+      }
+    }
+    if (mode == "client") {
+      try {
+      const result = await scanHalowNetworks();
+
+      const cleaned = (result || [])
+        .filter((n) => (n.ssid || "").trim().length > 0)
+        .map((n) => ({
+          ...n,
+          ssid: (n.ssid || "").trim(),
+          signal: typeof n.signal === "string" ? Number(n.signal) : n.signal,
+        }));
+
+      // Dedupe by SSID, keep strongest
+      const bestBySsid = new Map();
+      for (const n of cleaned) {
+        const key = n.ssid;
+        const existing = bestBySsid.get(key);
+
+        const sNew = typeof n.signal === "number" ? n.signal : -999;
+        const sOld = existing && typeof existing.signal === "number" ? existing.signal : -999;
+
+        if (
+          !existing ||
+          sNew > sOld ||
+          (sNew === sOld && !!n.secure && !existing.secure)
+        ) {
+          bestBySsid.set(key, n);
+        }
+      }
+
+      const deduped = Array.from(bestBySsid.values());
+
+      // Sort strongest first
+      deduped.sort((a, b) => {
+        const sa = typeof a.signal === "number" ? a.signal : -999;
+        const sb = typeof b.signal === "number" ? b.signal : -999;
+        return sb - sa;
+      });
+
+      setNetworks(deduped);
+      setListOpen(true); // ✅ expand list after scan
+      } catch (e) {
+        setScanError(e?.message || "Unable to scan for networks.");
+      } finally {
+      setScanning(false);
+      }
     }
   }
 
@@ -262,13 +310,13 @@ export default function Step2() {
               <div className="field">
                 <div className="labelRow">
                   <label>WiFi Password</label>
-                  <span className="hint">(Optional)</span>
+                  <span className="hint">Optional</span>
                 </div>
                 <input
                   type="password"
                   value={answers.regpw || ""}
                   onChange={(e) => setAnswers((a) => ({ ...a, regpw: e.target.value }))}
-                  placeholder="Your WiFi Password"
+                  placeholder="WiFi Password (if set)"
                 />
               </div>
             </>
@@ -318,7 +366,7 @@ export default function Step2() {
                 {!useHidden && listOpen && networks.length > 0 && (
                   <div className="list" style={{ marginTop: 12 }}>
                     {networks.map((n) => {
-                      const selected = (answers.halowssid || "") === n.ssid;
+                      const selected = (answers.regssid || "") === n.ssid;
                       return (
                         <button
                           key={n.ssid}
@@ -347,7 +395,7 @@ export default function Step2() {
 
                 {!useHidden && networks.length > 0 && !listOpen && (
                   <div style={{ marginTop: 10 }} className="hint">
-                    Selected: <b>{answers.halowssid || "—"}</b> (tap <b>Change network</b> to pick another)
+                    Selected: <b>{answers.regssid || "—"}</b> (tap <b>Change network</b> to pick another)
                   </div>
                 )}
               </div>
@@ -361,12 +409,12 @@ export default function Step2() {
                 {useHidden ? (
                   <input
                     autoComplete="username"
-                    value={answers.halowssid || ""}
-                    onChange={(e) => setAnswers((a) => ({ ...a, halowssid: e.target.value }))}
+                    value={answers.regssid || ""}
+                    onChange={(e) => setAnswers((a) => ({ ...a, regssid: e.target.value }))}
                     placeholder="Enter hidden HaLow SSID"
                   />
                 ) : (
-                  <input value={answers.halowssid || ""} readOnly placeholder="Select a network above" />
+                  <input value={answers.regssid || ""} readOnly placeholder="Select a network above" />
                 )}
               </div>
 
@@ -377,10 +425,10 @@ export default function Step2() {
                 </div>
                 <input
                   type="password"
-                  autoComplete="current-password"
-                  value={answers.halowpw || ""}
-                  onChange={(e) => setAnswers((a) => ({ ...a, halowpw: e.target.value }))}
-                  placeholder="Your WiFi Password"
+                  autoComplete="password"
+                  value={answers.regpw || ""}
+                  onChange={(e) => setAnswers((a) => ({ ...a, regpw: e.target.value }))}
+                  placeholder="WiFi Password (if set)"
                 />
               </div>
             </>

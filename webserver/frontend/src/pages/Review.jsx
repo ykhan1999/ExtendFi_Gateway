@@ -92,8 +92,8 @@ export default function Review() {
                 label="Mode"
                 value={answers.mode === "client" ? "extender" : answers.mode}
               />
-              <PrettyRow label="WiFi Name" value={answers.regssid || answers.halowssid || "—"} />
-              <PrettyRow label="Password" value={answers.regpw || answers.halowpw || "—"} />
+              <PrettyRow label="WiFi Name" value={answers.regssid || "—"} />
+              <PrettyRow label="Password" value={answers.regpw || "—"} />
             </div>
           </div>
 

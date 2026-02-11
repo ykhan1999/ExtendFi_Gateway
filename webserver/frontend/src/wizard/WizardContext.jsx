@@ -7,8 +7,6 @@ export function WizardProvider({ children }) {
     mode: "gateway",
     regssid: "",
     regpw: "",
-    halowssid: "",
-    halowpw: "",
     optim: "distance"
   });
 

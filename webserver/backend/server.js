@@ -67,16 +67,6 @@ function buildArgsFromAnswers(answers) {
     throw new Error("Invalid SSID");
   }
 
-  // HaLow SSID
-  if (typeof answers.halowssid !== "string" || answers.halowssid.length < 1 || answers.halowssid.length > 64) {
-    throw new Error("Invalid SSID");
-  }
-
-  // HaLow PW
-  if (typeof answers.halowpw !== "string" || answers.halowpw.length < 8 || answers.halowpw.length > 64) {
-    throw new Error("Invalid Password");
-  }
-
 // Characters that sed escapes: &, /, "
   const INVALID_CHARS = /[&/"]/;
 
@@ -91,12 +81,6 @@ function buildArgsFromAnswers(answers) {
 
   assertValid(answers.regpw, "Password");
   args.push("--pw", answers.regpw);
-
-  assertValid(answers.halowssid, "HaLow SSID");
-  args.push("--halow-ssid", answers.halowssid);
-
-  assertValid(answers.halowpw, "HaLow password");
-  args.push("--halow-pw", answers.halowpw);
 
   return args;
 }

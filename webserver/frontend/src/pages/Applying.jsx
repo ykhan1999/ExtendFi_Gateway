@@ -20,7 +20,7 @@ export default function Applying() {
           ) : (
             <div className="sub">
               You may now close this tab and connect your device to the extended
-              network <strong>"{answers?.halowssid || "—"}_EXT"</strong>.
+              network <strong>"{answers?.regssid || "—"}_EXT"</strong>.
             </div>
           )}
         </div>
