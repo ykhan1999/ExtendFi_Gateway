@@ -8,7 +8,7 @@ sudo apt-get update
 sudo apt-get install -y libnl-route-3-dev=3.7.0-2
 sudo apt-get install -y libnl-3-dev=3.7.0-2
 sudo apt-get install -y libnl-genl-3-dev=3.7.0-2
-sudo apt-get install -y openssl=3.5.4-1~deb13u1+rpt1
+sudo apt-get install -y openssl
 
 ### Download assets
 #get latest release
