@@ -13,6 +13,8 @@ mkdir -p /run/boot-mode
 touch /run/boot-mode/lock
 
 #start WiFi Setup
+cp /usr/local/etc/captive-portal.conf /etc/NetworkManager/dnsmasq-shared.d/
+systemctl restart NetworkManager
 nmcli connection down wifi-setup-open || true
 nmcli connection delete wifi-setup-open || true
 

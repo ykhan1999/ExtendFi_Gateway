@@ -49,6 +49,10 @@ systemctl disable webserver-frontend.service webserver-backend.service || true
 systemctl stop opennds
 systemctl disable opennds
 
+#remove captive portal rules
+rm -r /etc/NetworkManager/dnsmasq-shared.d/captive-portal.conf
+systemctl restart NetworkManager
+
 #restart driver module for fresh bringup
 systemctl stop start_morse
 modprobe -r morse
