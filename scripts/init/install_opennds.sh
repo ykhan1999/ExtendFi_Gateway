@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 sudo apt install -y libmicrohttpd-dev
+sudo apt install -y iptables
 git clone https://github.com/ykhan1999/openNDS-ExtendFi
 cd openNDS-ExtendFi
 make
