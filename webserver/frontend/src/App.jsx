@@ -22,7 +22,7 @@ export default function App() {
         <div className="brand">
           <h1>ExtendFi</h1>
         </div>
-        {step && <div className="badge">Step {Math.min(step, 4)} / 4</div>}
+        {step && <div className="badge">Step {Math.min(step, 2)} / 2</div>}
       </div>
 
       <Routes>
