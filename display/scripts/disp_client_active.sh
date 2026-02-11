@@ -1,37 +1,31 @@
 #!/usr/bin/bash
 pkill -f "disp_loading_bar.sh" || true
 cd /usr/local/bin
-prev_status=""
-prev_signal=""
 DEBUG="0"
 STATUS=""
 
-i=15
+i=60
 while true; do
-  #get SSID
-  SSID=$(iwgetid -r)
-  oled +2 "Name: ${SSID}"
-  oled s
   #get signal strength
   Signal=$(morse_cli -i wlan1 stats | grep Received | grep -Po '\-[[:digit:]]+')
   if [ "$DEBUG" -eq "1" ]; then
     signalstatus="$Signal"
   else
-    if [ "$Signal" -ge "-30" ] && [ "${CONNECTED}" == "GATEWAY OK" ]; then
+    if [ "$Signal" -ge "-30" ]; then
       signalstatus="********"
-    elif [ "$Signal" -ge "-40" ] && [ "$Signal" -lt "-30" ] && [ "${CONNECTED}" == "GATEWAY OK" ]; then
+    elif [ "$Signal" -ge "-40" ] && [ "$Signal" -lt "-30" ]; then
       signalstatus="*******"
-    elif [ "$Signal" -ge "-50" ] && [ "$Signal" -lt "-40" ] && [ "${CONNECTED}" == "GATEWAY OK" ]; then
+    elif [ "$Signal" -ge "-50" ] && [ "$Signal" -lt "-40" ]; then
       signalstatus="******"
-    elif [ "$Signal" -ge "-60" ] && [ "$Signal" -lt "-50" ] && [ "${CONNECTED}" == "GATEWAY OK" ]; then
+    elif [ "$Signal" -ge "-60" ] && [ "$Signal" -lt "-50" ]; then
       signalstatus="*****"
-    elif [ "$Signal" -ge "-70" ] && [ "$Signal" -lt "-60" ] && [ "${CONNECTED}" == "GATEWAY OK" ]; then
+    elif [ "$Signal" -ge "-70" ] && [ "$Signal" -lt "-60" ]; then
       signalstatus="****"
-    elif [ "$Signal" -ge "-80" ] && [ "$Signal" -lt "-70" ] && [ "${CONNECTED}" == "GATEWAY OK" ]; then
+    elif [ "$Signal" -ge "-80" ] && [ "$Signal" -lt "-70" ]; then
       signalstatus="***"
-    elif [ "$Signal" -ge "-90" ] && [ "$Signal" -lt "-80" ] && [ "${CONNECTED}" == "GATEWAY OK" ]; then
+    elif [ "$Signal" -ge "-90" ] && [ "$Signal" -lt "-80" ]; then
       signalstatus="LOW"
-    elif [ "$Signal" -ge "-100" ] && [ "$Signal" -lt "-90" ] && [ "${CONNECTED}" == "GATEWAY OK" ]; then
+    elif [ "$Signal" -ge "-100" ] && [ "$Signal" -lt "-90" ]; then
       signalstatus="LOW"
     elif [ "$Signal" -lt "-100" ]; then
       sleep 1
@@ -41,30 +35,26 @@ while true; do
         signalstatus="None"
         fi
       fi
-    else
-      signalstatus="None"
     fi
   fi
-  #get internet and connectivity status
-  if [[ "$i" -ge 14 ]]; then
+  #update internet and connectivity status every minute
+  if [[ "$i" -ge 59 ]]; then
     if ping -c1 -W2 8.8.8.8 &>/dev/null; then
-      STATUS="CONNECTED,ACTIVE"
-    else if ping -c1 -W2 192.160.50.1 &>/dev/null; then
+      STATUS="CONNECTED"
+    elif ping -c1 -W2 192.160.50.1 &>/dev/null; then
       STATUS="NO INTERNET"
     else
       STATUS="NO GATEWAY"
     fi
+    SSID=$(nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2)
+    oled +2 "${SSID}"
+    oled +3 "$STATUS"
+    oled s
     i=0
   fi
-  #refresh screen only with change
-  if [ "$STATUS" != "$prev_status" ] || [ "$signalstatus" != "$prev_signal" ]; then
-    oled +3 "$STATUS"
-    oled +4 "Signal: $signalstatus"
-    oled s
-  fi
-  #store new variables to check for change
-  prev_status="$STATUS"
-  prev_signal="$signalstatus"
+  #update signal status every second
+  oled +4 "Signal: $signalstatus"
+  oled s
   #loop timer
   sleep 1
   i=$(($i+1))

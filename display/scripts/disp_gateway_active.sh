@@ -7,7 +7,7 @@ prev_peers=""
 DEBUG="0"
 INTERNET=""
 
-i=15
+i=60
 while true; do
   #get SSID
   SSID=$(iwgetid -r)
@@ -47,9 +47,9 @@ while true; do
   #get number of peers
   Peers=$(journalctl -u 80211s_serve_dns.service --since "2 min ago" | grep -Po "192\\.168\\.50\\.[0-9]+" | sort -u | wc -l)
   #get connectivity state
-  if [[ "$i" -ge 14 ]]; then
+  if [[ "$i" -ge 59 ]]; then
     if ping -c1 -W2 8.8.8.8 &>/dev/null; then
-      INTERNET="CONNECTED,READY"
+      INTERNET="CONNECTED"
     else
       INTERNET="NO INTERNET"
     fi
