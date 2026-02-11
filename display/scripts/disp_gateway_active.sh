@@ -1,14 +1,11 @@
 #!/usr/bin/bash
 pkill -f "disp_loading_bar.sh" || true
 cd /usr/local/bin
-oled +2  "NO INTERNET"
-oled +3  "NO CLIENTS"
-oled s
 prev_internet=""
 prev_signal=""
 prev_peers=""
 DEBUG="0"
-INTERNET="NO INTERNET"
+INTERNET=""
 
 i=15
 while true; do
@@ -52,7 +49,7 @@ while true; do
   #get connectivity state
   if [[ "$i" -ge 14 ]]; then
     if ping -c1 -W2 8.8.8.8 &>/dev/null; then
-      INTERNET="INTERNET OK"
+      INTERNET="CONNECTED,READY"
     else
       INTERNET="NO INTERNET"
     fi

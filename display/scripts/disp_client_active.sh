@@ -1,20 +1,17 @@
 #!/usr/bin/bash
 pkill -f "disp_loading_bar.sh" || true
 cd /usr/local/bin
-oled +2  "NO GATEWAY"
-oled +3  "NO INTERNET"
-oled s
-prev_conn=""
+prev_status=""
 prev_signal=""
-prev_internet=""
 DEBUG="0"
-CONNECTED="NO GATEWAY"
-INTERNET="NO INTERNET"
+STATUS=""
 
 i=15
 while true; do
   #get SSID
   SSID=$(iwgetid -r)
+  oled +2 "Name: ${SSID}"
+  oled s
   #get signal strength
   Signal=$(morse_cli -i wlan1 stats | grep Received | grep -Po '\-[[:digit:]]+')
   if [ "$DEBUG" -eq "1" ]; then
@@ -51,27 +48,22 @@ while true; do
   #get internet and connectivity status
   if [[ "$i" -ge 14 ]]; then
     if ping -c1 -W2 8.8.8.8 &>/dev/null; then
-      INTERNET="INTERNET OK"
+      STATUS="CONNECTED,ACTIVE"
+    else if ping -c1 -W2 192.160.50.1 &>/dev/null; then
+      STATUS="NO INTERNET"
     else
-      INTERNET="NO INTERNET"
-    fi
-    if ping -c1 -W2 192.160.50.1 &>/dev/null; then
-      CONNECTED="GATEWAY OK"
-    else
-      CONNECTED="NO GATEWAY"
+      STATUS="NO GATEWAY"
     fi
     i=0
   fi
   #refresh screen only with change
-  if [ "$CONNECTED" != "$prev_conn" ] || [ "$INTERNET" != "$prev_internet" ] || [ "$signalstatus" != "$prev_signal" ]; then
-    oled +3 "$INTERNET"
+  if [ "$STATUS" != "$prev_status" ] || [ "$signalstatus" != "$prev_signal" ]; then
+    oled +3 "$STATUS"
     oled +4 "Signal: $signalstatus"
-    oled +2 "$CONNECTED"
     oled s
   fi
   #store new variables to check for change
-  prev_conn="$CONNECTED"
-  prev_internet="$INTERNET"
+  prev_status="$STATUS"
   prev_signal="$signalstatus"
   #loop timer
   sleep 1
