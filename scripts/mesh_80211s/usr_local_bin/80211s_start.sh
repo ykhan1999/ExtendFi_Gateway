@@ -46,6 +46,8 @@ fi
 #stop config webserver if running
 systemctl stop webserver-frontend.service webserver-backend.service || true
 systemctl disable webserver-frontend.service webserver-backend.service || true
+systemctl stop opennds
+systemctl disable opennds
 
 #restart driver module for fresh bringup
 systemctl stop start_morse

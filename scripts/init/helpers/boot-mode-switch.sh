@@ -38,6 +38,8 @@ nmcli connection modify wifi-setup-open \
 nmcli connection up wifi-setup-open
 
 # Start webserver right away if not already started
+systemctl enable opennds
+systemctl start opennds
 log "Starting webserver services: $WEB_FRONTEND $WEB_BACKEND"
 systemctl enable --now "$WEB_FRONTEND" "$WEB_BACKEND" || true
 

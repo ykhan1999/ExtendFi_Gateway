@@ -38,5 +38,8 @@ sudo systemctl disable NetworkManager-wait-online.service
 #secure device by disabling SSH access
 sudo systemctl disable sshd
 
+#Enable auto redirect to setup page
+sudo systemctl enable opennds
+
 #reboot to show webserver
 sudo reboot
