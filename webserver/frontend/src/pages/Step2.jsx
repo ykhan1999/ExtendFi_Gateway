@@ -436,9 +436,16 @@ export default function Step2() {
 
           <div className="actions">
             <button onClick={() => nav("/step/1")}>Back</button>
-            <button className="primary" onClick={() => nav("/review")}>
+              <button
+                className="primary"
+                onClick={() => nav("/review")}
+                disabled={!answers.regssid}
+                style={{
+                 opacity: !answers.regssid ? 0.5 : 1,
+                 cursor: !answers.regssid ? "not-allowed" : "pointer"
+                }}>
               Next
-            </button>
+           </button>
           </div>
         </div>
       </div>
