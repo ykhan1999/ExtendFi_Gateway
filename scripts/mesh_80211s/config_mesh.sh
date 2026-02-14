@@ -68,6 +68,15 @@ sed -i \
 
 echo "Updated SSID and password in $CONFIG_FILE"
 
+# Supply the config file with the new HaLow SSID and pw
+CONFIG_FILE_OPEN_2=$SCRIPT_DIR/config/halow_80211s.conf
+sed -i \
+    -e "s/ssid=\"[^\"]*\"/ssid=\"$ESCAPED_SSID\"/" \
+    -e "s/sae_password=\"[^\"]*\"/sae_password=\"$ESCAPED_PASS\"/" \
+    "$CONFIG_FILE_OPEN_2"
+
+echo "Updated SSID and password in $CONFIG_FILE_OPEN_2"
+
 #Supply the 80211s_start file with the new hotspot SSID and pw
 CONFIG_FILE_2=$SCRIPT_DIR/usr_local_bin/80211s_start.sh
 sed -i \
