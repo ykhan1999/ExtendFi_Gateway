@@ -22,8 +22,8 @@ rm -r /etc/systemd/network/10-wlan1.network || true
 systemctl restart systemd-networkd || true
 
 #remove netman connection
-nmcli connection down wifi-client-${ssid} || true
-nmcli connection delete wifi-client-${ssid} || true
+nmcli connection down wifi-client || true
+nmcli connection delete wifi-client || true
 
 pkill -f "/usr/local/bin/disp_gateway_active.sh" || true
 
@@ -32,8 +32,8 @@ pkill -f "/usr/local/bin/disp_gateway_active.sh" || true
 /usr/local/bin/toggle_NAT_80211s.sh --off --client || true
 
 #remove netman connection
-nmcli connection down wifi-ap-${ssid} || true
-nmcli connection delete wifi-ap-${ssid} || true
+nmcli connection down wifi-ap || true
+nmcli connection delete wifi-ap || true
 
 pkill -f "/usr/local/bin/disp_client_active.sh" || true
 
