@@ -18,36 +18,39 @@ while true; do
   else
     if [ "$Signal" -ge "-30" ]; then
       signalstatus="********"
+      j=0
     elif [ "$Signal" -ge "-40" ] && [ "$Signal" -lt "-30" ]; then
       signalstatus="*******"
+      j=0
     elif [ "$Signal" -ge "-50" ] && [ "$Signal" -lt "-40" ]; then
       signalstatus="******"
+      j=0
     elif [ "$Signal" -ge "-60" ] && [ "$Signal" -lt "-50" ]; then
       signalstatus="*****"
+      j=0
     elif [ "$Signal" -ge "-70" ] && [ "$Signal" -lt "-60" ]; then
       signalstatus="****"
+      j=0
     elif [ "$Signal" -ge "-80" ] && [ "$Signal" -lt "-70" ]; then
       signalstatus="***"
+      j=0
     elif [ "$Signal" -ge "-90" ] && [ "$Signal" -lt "-80" ]; then
       signalstatus="LOW"
+      j=0
     elif [ "$Signal" -ge "-100" ] && [ "$Signal" -lt "-90" ]; then
       signalstatus="LOW"
+      j=0
     elif [ "$Signal" -lt "-100" ]; then
-      sleep 1
-      if [ "$Signal" -lt "-100" ]; then
-        sleep 1
-        if [ "$Signal" -lt "-100" ]; then
+      j=$(($j+1))
+      if [[ "$j" -ge 5 ]]; then
         signalstatus="None"
-        fi
       fi
-    else
-      signalstatus="None"
     fi
   fi
   #get number of peers
   Peers=$(journalctl -u 80211s_serve_dns.service --since "2 min ago" | grep -Po "192\\.168\\.50\\.[0-9]+" | sort -u | wc -l)
   #get connectivity state
-  if [[ "$i" -ge 59 ]]; then
+  if [[ "$i" -ge 15 ]]; then
     if ping -c1 -W2 8.8.8.8 &>/dev/null; then
       INTERNET="CONNECTED"
     else
